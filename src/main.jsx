@@ -1,69 +1,91 @@
 import { createRoot } from "react-dom/client";
-import { StrictMode } from "react";
-
-const items = [
-  {
-    name: "Apples",
-    quantity: 5,
-  },
-  {
-    name: "Bananas",
-    quantity: 7,
-  },
-  {
-    name: "Box of Pasta",
-    quantity: 1,
-  },
-  {
-    name: "Cookies",
-    quantity: 12,
-  },
-];
+import { StrictMode, useState } from "react";
 
 const Header = (props) => {
   console.log(props);
   return (
     <header>
       <h1>{props.title}</h1>
-      <span className="total-items">Items: {props.itemTotal + 1}</span>
+      <span className="total-items">Items: {props.itemTotal}</span>
     </header>
   );
 };
 
 const Item = (props) => {
+  console.log(props.removeItem);
   return (
     <div className="item">
-      <button className="remove-item" />
+      <button
+        className="remove-item"
+        onClick={() => props.removeItem(props.id)}
+      />
       <span className="item-name">{props.name}</span>
-      <Counter quantity={props.quantity} />
+      <Counter />
     </div>
   );
 };
 
-const Counter = (props) => {
+const Counter = () => {
+  const [quantity, setQuantity] = useState(0);
+  const incrementQuantity = () => {
+    setQuantity((previousQuantity) => previousQuantity + 1);
+  };
+  const decreaseQuantity = () => {
+    if (quantity > 0) {
+      setQuantity((previousQuantity) => previousQuantity - 1);
+    }
+  };
   return (
     <div className="quantity">
       <span className="qty-label">QTY</span>
-      <button className="increment">+</button>
-      <button className="decrement">-</button>
-      <span className="quantity-amount">{props.quantity}</span>
+      <button className="increment" onClick={incrementQuantity}>
+        +
+      </button>
+      <button className="decrement" onClick={decreaseQuantity}>
+        -
+      </button>
+      <span className="quantity-amount">{quantity}</span>
     </div>
   );
 };
 
-const App = (props) => {
+const App = () => {
+  const [items, setItems] = useState([
+    {
+      name: "Apples",
+      id: 1,
+    },
+    {
+      name: "Bananas",
+      id: 2,
+    },
+    {
+      name: "Box of Pasta",
+      id: 3,
+    },
+    {
+      name: "Cookies",
+      id: 4,
+    },
+  ]);
+
+  const handleRemoveItem = (id) => {
+    setItems((previousItems) => previousItems.filter((i) => i.id !== id));
+  };
+
   return (
     <div className="grocery-list">
-      <Header title="My Grocery List" itemTotal={props.initialList.length} />
+      <Header title="My Grocery List" itemTotal={items.length} />
       {/* Grocery List */}
 
-      {props.initialList.map((item) => (
-        <Item name={item.name} quantity={item.quantity} />
+      {items.map((item) => (
+        <Item
+          name={item.name}
+          id={item.id}
+          key={item.id}
+          removeItem={handleRemoveItem}
+        />
       ))}
-      {/* <Item name="Banana" quantity={5} />
-      <Item name="Apples" quantity={7} />
-      <Item name="Box of Pasta" quantity={1} />
-      <Item name="Cookies" quantity={12} /> */}
     </div>
   );
 };
@@ -71,6 +93,6 @@ const App = (props) => {
 const root = createRoot(document.getElementById("root"));
 root.render(
   <StrictMode>
-    <App initialList={items} />
+    <App />
   </StrictMode>
 );
